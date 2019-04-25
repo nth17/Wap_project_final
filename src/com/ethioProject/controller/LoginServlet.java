@@ -1,5 +1,6 @@
 package com.ethioProject.controller;
 
+import com.ethioProject.Bean.User;
 import com.ethioProject.DAO.LoginDAO;
 
 import javax.servlet.RequestDispatcher;
@@ -21,14 +22,34 @@ public class LoginServlet extends HttpServlet {
         String n=request.getParameter("email");
         String p=request.getParameter("userpass");
 
-        HttpSession session = request.getSession(false);
-        if(session!=null)
-            session.setAttribute("name", n);
+        HttpSession session = request.getSession();
+//        if(session!=null)
+//            session.setAttribute("name", n);
 
-        if(LoginDAO.validate(n, p)){
-            RequestDispatcher rd=request.getRequestDispatcher("dashboard.html");
+        User u = LoginDAO.validate(n,p);
+        System.out.println(u+"next----------");
+
+        if(u.getIs_admin()){
+System.out.println("success maybe");
+            if(session!=null)
+            session.setAttribute("UserObj", u);
+            RequestDispatcher rd=request.getRequestDispatcher("user.jsp");
             rd.forward(request,response);
            out.println("success");
+        }else if(u.isIs_projectmanager()){
+//            session.setAttribute("UserObj", u);
+            if(session!=null)
+                session.setAttribute("UserObj", u);
+//            RequestDispatcher rd=request.getRequestDispatcher("CreateTeam");
+//            rd.forward(request,response);
+            response.sendRedirect("CreateTeam");
+//            RequestDispatcher rd=request.getRequestDispatcher("CreateTeam");
+//            rd.forward(request,response);
+        }else if (u.isIs_projectmanager() == false && u.getIs_admin() == false){
+            if(session!=null)
+                session.setAttribute("UserObj", u);
+            RequestDispatcher rd=request.getRequestDispatcher("developer.jsp");
+            rd.forward(request,response);
         }
         else{
             out.print("<p style=\"color:red\">Sorry username or password error</p>");

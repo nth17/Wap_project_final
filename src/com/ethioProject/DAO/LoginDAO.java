@@ -1,45 +1,51 @@
 package com.ethioProject.DAO;
 
+import com.ethioProject.Bean.User;
+
 import java.sql.*;
 
 public class LoginDAO {
+   static boolean status = false;
+   static PreparedStatement pst = null;
+   static  ResultSet rs = null;
+  static   boolean s=false;
+  static   boolean s1=false;
+    public static User validate (String email , String password){
 
-    public static boolean validate (String email , String password){
-        Connection con =null ;
-        boolean status = false;
-        PreparedStatement pst = null;
-        ResultSet rs = null;
-
-        String url ="jdbc:mysql://localhost:3306/MAINDBMUM3?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
+User u = new User();
 
 
-        String userName = "root";
-        String pass = "root";
 
         try {
-            Class.forName("com.mysql.jdbc.Driver");
-            con = DriverManager
-                    .getConnection(url, userName, pass);
 
-            pst = con
+            pst = DataBaseDAO.connection()
 
                     .prepareStatement("select * from user where email=? and password=?");
             pst.setString(1, email);
             pst.setString(2, password);
 
             rs = pst.executeQuery();
-            status = rs.next();
+            while (rs.next()) {
+                    u.setPhoneNo(rs.getString("phone_no"));
+                    u.setUserID(rs.getInt("userid"));
+                    u.setPassword(rs.getString("password"));
+                    u.setEmail(rs.getString("email"));
+                    u.setFirstName(rs.getString("first_name"));
+                    u.setLastName(rs.getString("last_name"));
+                    u.setLocation(rs.getString("location"));
+                u.setIs_admin(rs.getBoolean("is_admin"));
+
+                 u.setIs_projectmanager(rs.getBoolean("is_project_manager"));
+            }
+
+                System.out.println(u +"gooooo -------------");
+          return u;
+//            status = rs.next();
 
         } catch (Exception e) {
             System.out.println(e);
         } finally {
-            if (con != null) {
-                try {
-                    con.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
+
             if (pst != null) {
                 try {
                     pst.close();
@@ -55,7 +61,7 @@ public class LoginDAO {
                 }
             }
         }
-        return status;
+        return u;
 
 
     }
